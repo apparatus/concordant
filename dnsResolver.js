@@ -32,9 +32,7 @@ module.exports = function (opts) {
     var client = dnsSocket()
     var result = []
 
-    console.log('direct')
     client.query({questions: [{type: 'SRV', name: query}]}, opts.port, opts.host, function (err, serviceSRV) {
-      console.log('err:' + err)
       if (err) { return cb(err) }
 
       if (serviceSRV.answers && serviceSRV.answers.length > 0) {
