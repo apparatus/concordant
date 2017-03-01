@@ -41,7 +41,9 @@ module.exports = function (opts) {
           client.query({questions: [{type: 'A', name: answer.data.target}]}, opts.port, opts.host, function (err, serviceA) {
             if (err) { return next(err) }
             if (serviceA.answers && serviceA.answers.length > 0) {
-              result.push({port: answer.data.port, host: serviceA.answers[0].data})
+              serviceA.answers.forEach(function (a) {
+                result.push({port: answer.data.port, host: a.data})
+              })
               next()
             } else {
               next(dns.NODATA)
@@ -70,7 +72,9 @@ module.exports = function (opts) {
           dns.resolve4(addressSRV.name, function (err, addressesA) {
             if (err) { return next(err) }
             if (addressesA && addressesA.length > 0) {
-              result.push({port: addressSRV.port, host: addressesA[0].address})
+              addressesA.forEach(function (a) {
+                result.push({port: addressSRV.port, host: a})
+              })
               next()
             } else {
               next(dns.NODATA)

@@ -78,7 +78,7 @@ module.exports = function () {
         return cb('force error A')
       }
       if (zone.A[query]) {
-        cb(null, [{address: zone.A[query].address}])
+        cb(null, [zone.A[query].address])
       } else {
         if (query.indexOf('badrecord') > -1) {
           cb(null, [])
