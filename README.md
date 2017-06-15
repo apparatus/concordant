@@ -2,12 +2,12 @@
 Concordant is a DNS resolver module for those involved in microservice development. For best results concordant should be used with the Fuge microservice shell and Kubernetes.
 See:
 
-* [Fuge][https://github.com/apparatus/fuge]
-* [Kubernetes service discovery][https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/]
+* [Fuge](https://github.com/apparatus/fuge)
+* [Kubernetes service discovery](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/)
 
 If you're using this module, and need help, you can:
 
-- Post a [github issue][https://github.com/apparatus/concordant/issues],
+- Post a [github issue](https://github.com/apparatus/concordant/issues),
 - Reach out on twitter to @pelger
 
 ## Install
@@ -89,8 +89,4 @@ The [apparatus team][] encourage open participation. If you feel you can help in
 documentation, examples, extra testing, or new features please get in touch.
 
 ## License
-Copyright the apparatus team 2016, Licensed under [MIT][].
-
-[MIT]: ./LICENSE
-[github issue]: https://github.com/apparatus/concordant/issues/new
-[apparatus team]: https://github.com/apparatus
+Copyright the apparatus team 2016, Licensed under [MIT](LICENSE).
