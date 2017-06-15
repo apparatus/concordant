@@ -1,6 +1,6 @@
 {
   "name": "concordant",
-  "version": "0.2.1",
+  "version": "1.0.1",
   "license": "MIT",
   "description": "resolver utility module",
   "main": "index.js",
@@ -32,8 +32,7 @@
   },
   "devDependencies": {
     "coveralls": "^2.11.14",
-    "fakeredis": "^1.0.3",
-    "lerna": "2.0.0-beta.30",
+    "fuge-dns": "^0.2.0",
     "pre-commit": "^1.1.3",
     "proxyquire": "^1.7.10",
     "snazzy": "^5.0.0",

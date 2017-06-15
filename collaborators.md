@@ -1,2 +1,1 @@
 Peter Elger
-Matteo Collina
