@@ -1,5 +1,9 @@
 # Concordant
 Concordant is a DNS resolver module for those involved in microservice development. For best results concordant should be used with the Fuge microservice shell and Kubernetes.
+See:
+
+* [Fuge][https://github.com/apparatus/fuge]
+* [Kubernetes service discovery][https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/]
 
 If you're using this module, and need help, you can:
 
