@@ -1,6 +1,6 @@
 {
   "name": "concordant",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "license": "MIT",
   "description": "resolver utility module",
   "main": "index.js",
@@ -10,7 +10,8 @@
     "fuge",
     "resolve",
     "service",
-    "discovery"
+    "discovery",
+    "dns"
   ],
   "author": "Peter Elger (https://github.com/pelger)",
   "contributors": [],
