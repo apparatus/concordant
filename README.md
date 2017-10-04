@@ -28,8 +28,9 @@ Concordant performs DNS based SRV and A record lookups in order to determine the
 
 * if the environment variable DNS_HOST is set then perform lookups directly against this host
 * otherwise use the system DNS configuration to perform lookups
-* For each lookup first perform an SRV query to obtain a port number and CNAME record
-* To complete the lookup perform an A query against the CNAME record to determine an IP address
+* depending on the value of the environment variable DNS_MODE concordant will lookup SRV and or A records
+* if DNS_MODE is 'SRV' then for each lookup first perform an SRV query to obtain a port number and CNAME record to complete the lookup perform an A query against the CNAME record to determine an IP address
+* Otherwise if DNS_MODE is 'A' just perform and A query in order to resolve the hostname 
 
 ## Kubernetes DNS and Fuge
 Kubernetes supplies DNS records of the following form for service discovery:
@@ -63,7 +64,7 @@ Require the module and call `dns.resolve`. Callback contains an array of results
  {host: '1.2.3.5', port: 1235}]
 ```
 
-Example:
+### Example SRV lookup
 
 ```javascript
 var concordant = require('concordant')()
@@ -77,11 +78,26 @@ concordant.dns.resolve('full.service.domain.name', function (err, results) {
 })
 ```
 
+### Example A lookup
+
+```javascript
+var concordant = require('concordant')()
+
+concordant.dns.resolve('full.service.domain.name', function (err, results) {
+  if (err) { return cb(err) }
+
+    // connect to results[0].host and do stuff, in this case no port value is returned...
+
+  })
+})
+```
+
 ## Environment Variables
 Concordant uses the following environment variables:
 
 * DNS_HOST - the DNS host to perform lookup against. If not set use the system supplied DNS configuration
 * DNS_PORT - the DNS port to use. Defaults to 50353 if DNS_HOST is set, otherwise uses the system supplied DNS configuration
+* DNS_MODE - the lookup mode to use, if set to 'A' then perform host only lookup up. If set to 'SRV' perform SRV and A queries to resolve both host and port number. Defaults to 'SRV'
 
 
 ## Contributing

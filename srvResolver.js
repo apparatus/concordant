@@ -15,7 +15,7 @@
 'use strict'
 
 var assert = require('assert')
-var async = require('async')
+var asnc = require('async')
 var dns = require('dns')
 var dnsSocket = require('dns-socket')
 
@@ -36,7 +36,7 @@ module.exports = function (opts) {
       if (err) { return cb(err) }
 
       if (serviceSRV.answers && serviceSRV.answers.length > 0) {
-        async.eachSeries(serviceSRV.answers, function (answer, next) {
+        asnc.eachSeries(serviceSRV.answers, function (answer, next) {
 
           client.query({questions: [{type: 'A', name: answer.data.target}]}, opts.port, opts.host, function (err, serviceA) {
             if (err) { return next(err) }
@@ -51,6 +51,10 @@ module.exports = function (opts) {
           })
         }, function (err) {
           client.destroy()
+          if (result.length > 0) {
+            result.host = result[0].host
+            result.port = result[0].port
+          }
           cb(err, result)
         })
       } else {
@@ -68,7 +72,7 @@ module.exports = function (opts) {
     dns.resolveSrv(query, function (err, addressesSRV) {
       if (err) { return cb(err) }
       if (addressesSRV && addressesSRV.length > 0) {
-        async.eachSeries(addressesSRV, function (addressSRV, next) {
+        asnc.eachSeries(addressesSRV, function (addressSRV, next) {
           dns.resolve4(addressSRV.name, function (err, addressesA) {
             if (err) { return next(err) }
             if (addressesA && addressesA.length > 0) {
@@ -81,6 +85,10 @@ module.exports = function (opts) {
             }
           })
         }, function (err) {
+          if (result.length > 0) {
+            result.host = result[0].host
+            result.port = result[0].port
+          }
           cb(err, result)
         })
       } else {

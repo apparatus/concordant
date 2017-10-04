@@ -14,11 +14,13 @@
 
 'use strict'
 
-var dnsResolver = require('./dnsResolver')
+var srvResolver = require('./srvResolver')
+var aResolver = require('./aResolver')
 
 
-module.exports = function () {
+module.exports = function (globalOpts) {
   var opts = {}
+  var resolver = srvResolver
 
 
   if (process.env.DNS_HOST) {
@@ -31,9 +33,13 @@ module.exports = function () {
     opts.dns = { mode: 'system' }
   }
 
+  if (process.env.DNS_MODE === 'A' || (globalOpts && globalOpts.dnsMode === 'A')) {
+    resolver = aResolver
+  }
+
 
   return {
-    dns: dnsResolver(opts.dns)
+    dns: resolver(opts.dns)
   }
 }
 

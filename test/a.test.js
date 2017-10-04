@@ -17,91 +17,62 @@
 var test = require('tap').test
 var proxyquire = require('proxyquire')
 var dnsMock = require('./dns-mock')()
-proxyquire('../srvResolver', {dns: dnsMock.systemStub})
+proxyquire('../aResolver', {dns: dnsMock.systemStub})
 var concordant = require('../index')
 var nodeDns = require('dns')
 
 
 test('resove with system lookup', function (t) {
-  t.plan(4)
-
+  process.env.DNS_MODE = 'A'
   var conc = concordant()
-  conc.dns.resolve('_tcp._tcp.service2.testns.svc.cluster.local', function (err, results) {
+  conc.dns.resolve('service2.testns.svc.cluster.local', function (err, results) {
     t.equal(1, results.length)
     t.equal(null, err)
     t.equal('127.0.0.1', results[0].host)
-    t.equal(3002, results[0].port)
+    t.equal('127.0.0.1', results.host)
+    t.end()
   })
 })
 
 
 test('fail with system lookup', function (t) {
-  t.plan(1)
-
+  process.env.DNS_MODE = 'A'
   var conc = concordant()
-  conc.dns.resolve('_tcp._tcp.wibble.testns.svc.cluster.local', function (err, results) {
+  conc.dns.resolve('wibble.testns.svc.cluster.local', function (err, results) {
     t.equal(nodeDns.NODATA, err)
-  })
-})
-
-
-test('missing A record with system lookup', function (t) {
-  t.plan(1)
-
-  var conc = concordant()
-  conc.dns.resolve('_tcp._tcp.badrecord.testns.svc.cluster.local', function (err, results) {
-    t.equal(nodeDns.NODATA, err)
+    t.end()
   })
 })
 
 
 test('resove with direct lookup', function (t) {
-  t.plan(4)
-
   process.env.DNS_HOST = '127.0.0.1'
-  var conc = concordant()
+  process.env.DNS_MODE = 'A'
+  var conc = concordant({dnsMode: 'A'})
   dnsMock.start(function () {
-    conc.dns.resolve('_tcp._tcp.service2.testns.svc.cluster.local', function (err, results) {
+    conc.dns.resolve('service2.testns.svc.cluster.local', function (err, results) {
       t.equal(1, results.length)
       t.equal(null, err)
       t.equal('127.0.0.1', results[0].host)
-      t.equal(3002, results[0].port)
+      t.equal('127.0.0.1', results.host)
       dnsMock.stop()
+      t.end()
     })
   })
 })
 
 
 test('fail with direct lookup', function (t) {
-  t.plan(1)
-
   process.env.DNS_HOST = '127.0.0.1'
   process.env.DNS_PORT = 53053
+  process.env.DNS_MODE = 'A'
   var conc = concordant()
   setImmediate(function () {
     dnsMock.start(function () {
-      conc.dns.resolve('_tcp._tcp.wibble.testns.svc.cluster.local', function (err, results) {
-        console.log(err)
+      conc.dns.resolve('wibble.testns.svc.cluster.local', function (err, results) {
         t.equal(nodeDns.NODATA, err)
         dnsMock.stop()
-      })
-    })
-  })
-})
-
-
-test('mising A record with direct lookup', function (t) {
-  t.plan(1)
-
-  process.env.DNS_HOST = '127.0.0.1'
-  process.env.DNS_PORT = 53053
-  var conc = concordant()
-  setImmediate(function () {
-    dnsMock.start(function () {
-      conc.dns.resolve('_tcp._tcp.badrecord.testns.svc.cluster.local', function (err, results) {
-        console.log(err)
-        t.equal(nodeDns.NODATA, err)
-        dnsMock.stop()
+        t.end()
       })
     })
   })

@@ -98,22 +98,23 @@ module.exports = function () {
   var dnsErrorSocketStub = function () {
 
     function query (q, port, host, cb) {
-      var resp = { id: 14978,
-                   type: 'response',
-                   flags: 0,
-                   questions:
-                    [ { name: '_tcp._tcp.service2.testns.svc.cluster.local',
-                        type: 'SRV',
-                        class: 1 } ],
-                   answers:
-                    [ { name: '_tcp._tcp.service2.testns.svc.cluster.local',
-                        type: 'SRV',
-                        class: 1,
-                        ttl: 5,
-                        flush: false,
-                        data: [Object] } ],
-                   authorities: [],
-                   additionals: [] }
+      var resp = {
+        id: 14978,
+        type: 'response',
+        flags: 0,
+        questions:
+        [{name: '_tcp._tcp.service2.testns.svc.cluster.local',
+          type: 'SRV',
+          class: 1}],
+        answers:
+        [{name: '_tcp._tcp.service2.testns.svc.cluster.local',
+          type: 'SRV',
+          class: 1,
+          ttl: 5,
+          flush: false,
+          data: [Object]}],
+        authorities: [],
+        additionals: []}
 
       if (q.questions[0].type === 'SRV') {
         if (errorSRV) {

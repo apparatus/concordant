@@ -17,7 +17,7 @@
 var test = require('tap').test
 var proxyquire = require('proxyquire')
 var dnsMock = require('./dns-mock')()
-proxyquire('../dnsResolver', {dns: dnsMock.systemStub, 'dns-socket': dnsMock.dnsErrorSocketStub})
+proxyquire('../srvResolver', {dns: dnsMock.systemStub, 'dns-socket': dnsMock.dnsErrorSocketStub})
 var concordant = require('../index')
 
 
@@ -47,7 +47,7 @@ test('test error lookup with system dns', function (t) {
 })
 
 
-test('test error lookup with system dns', function (t) {
+test('test error lookup with direct dns', function (t) {
   t.plan(2)
 
   process.env.DNS_PORT = 53053
@@ -66,7 +66,7 @@ test('test error lookup with system dns', function (t) {
 })
 
 
-test('test error lookup with system dns', function (t) {
+test('test error lookup with direct dns', function (t) {
   t.plan(2)
 
   process.env.DNS_PORT = 53053
