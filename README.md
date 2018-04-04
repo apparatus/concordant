@@ -24,13 +24,13 @@ The traditional approach to solving these issues is to supply a configuration fi
 
 Concordant takes a different approach. When a specific environment variable is set (DNS_HOST) concordant will perform service discovery lookups against this host directly. If not defined it will use the system configured DNS resolution. This is useful because it means that we can run a simple DNS server in development that mimics how our production environment behaves. This significantly reduces configuration overhead and friction.
 
-Concordant performs DNS based SRV and A record lookups in order to determine the port number and IP address for a given service. It uses the following simple algorithm:
+Concordant performs DNS based SRV and, optionally, A record lookups in order to determine the port number and IP address for a given service. It uses the following simple algorithm:
 
 * if the environment variable DNS_HOST is set then perform lookups directly against this host
 * otherwise use the system DNS configuration to perform lookups
-* depending on the value of the environment variable DNS_MODE concordant will lookup SRV and or A records
-* if DNS_MODE is 'SRV' then for each lookup first perform an SRV query to obtain a port number and CNAME record to complete the lookup perform an A query against the CNAME record to determine an IP address
-* Otherwise if DNS_MODE is 'A' just perform and A query in order to resolve the hostname 
+* depending on the value of the environment variable DNS_MODE, concordant will lookup SRV and/or A records
+* if DNS_MODE is 'SRV' then for each lookup first perform an SRV query to obtain a port number and name. The name can then optionally be resolved fully to determine an IP address
+* Otherwise if DNS_MODE is 'A' just perform and A query in order to resolve the IP address for a hostname
 
 ## Kubernetes DNS and Fuge
 Kubernetes supplies DNS records of the following form for service discovery:
@@ -44,6 +44,7 @@ So a consumer of a service need only know the service and port name in order to 
 var redis = require('redis')
 var concordant = require('concordant')()
 
+// Change 'resolve' to 'srvResolve' to resolve the host and port without performing the A lookup to resolve IP addresses
 concordant.dns.resolve('_main._tcp.redis.mynamespace.svc.cluster.local', function (err, results) {
   if (err) { return cb(err) }
     var client = redis.createClient({host: results[0].host, port: results[0].port})    
@@ -57,6 +58,9 @@ concordant.dns.resolve('_main._tcp.redis.mynamespace.svc.cluster.local', functio
 The fuge development shell will supply the exact same DNS records. Code that uses concordant for discovery will run unchanged in a development or production environment. i.e. the above sample will run unchanged in the Fuge development shell and within a Kubernetes environment.
 
 ## Usage
+
+### Full resolution
+
 Require the module and call `dns.resolve`. Callback contains an array of results or err. Results in the form:
 
 ```javascript
@@ -64,12 +68,21 @@ Require the module and call `dns.resolve`. Callback contains an array of results
  {host: '1.2.3.5', port: 1235}]
 ```
 
+### Hostname resolution (SRV lookup only)
+
+Require the module and call `dns.srvResolve`. Callback contains an array of results or err. Results in the form:
+
+```javascript
+[{host: 'service.namespace.svc.cluster.local', port: 1234},
+ {host: 'service.namespace.svc.cluster.local', port: 1235}]
+```
+
 ### Example SRV lookup
 
 ```javascript
 var concordant = require('concordant')()
 
-concordant.dns.resolve('full.service.domain.name', function (err, results) {
+concordant.dns.srvResolve('full.service.domain.name', function (err, results) {
   if (err) { return cb(err) }
 
     // connect to results[0].host results[0].port and do stuff...
