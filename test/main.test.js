@@ -22,7 +22,7 @@ var concordant = require('../index')
 var nodeDns = require('dns')
 
 
-test('resove with system lookup', function (t) {
+test('resolve with system lookup', function (t) {
   t.plan(4)
 
   var conc = concordant()
@@ -34,6 +34,17 @@ test('resove with system lookup', function (t) {
   })
 })
 
+test('resolve SRV only with system lookup', function (t) {
+  t.plan(4)
+
+  var conc = concordant()
+  conc.dns.resolveSrv('_tcp._tcp.service2.testns.svc.cluster.local', function (err, results) {
+    t.equal(1, results.length)
+    t.equal(null, err)
+    t.equal('service2.testns.svc.cluster.local', results[0].host)
+    t.equal(3002, results[0].port)
+  })
+})
 
 test('fail with system lookup', function (t) {
   t.plan(1)
@@ -55,22 +66,37 @@ test('missing A record with system lookup', function (t) {
 })
 
 
-test('resove with direct lookup', function (t) {
+test('resolve with direct lookup', function (t) {
   t.plan(4)
 
   process.env.DNS_HOST = '127.0.0.1'
   var conc = concordant()
   dnsMock.start(function () {
     conc.dns.resolve('_tcp._tcp.service2.testns.svc.cluster.local', function (err, results) {
+      dnsMock.stop()
       t.equal(1, results.length)
       t.equal(null, err)
       t.equal('127.0.0.1', results[0].host)
       t.equal(3002, results[0].port)
-      dnsMock.stop()
     })
   })
 })
 
+test('resolve SRV only with direct lookup', function (t) {
+  t.plan(4)
+
+  process.env.DNS_HOST = '127.0.0.1'
+  var conc = concordant()
+  dnsMock.start(function () {
+    conc.dns.resolveSrv('_tcp._tcp.service2.testns.svc.cluster.local', function (err, results) {
+      dnsMock.stop()
+      t.equal(1, results.length)
+      t.equal(null, err)
+      t.equal('service2.testns.svc.cluster.local', results[0].host)
+      t.equal(3002, results[0].port)
+    })
+  })
+})
 
 test('fail with direct lookup', function (t) {
   t.plan(1)
@@ -89,8 +115,7 @@ test('fail with direct lookup', function (t) {
   })
 })
 
-
-test('mising A record with direct lookup', function (t) {
+test('missing A record with direct lookup', function (t) {
   t.plan(1)
 
   process.env.DNS_HOST = '127.0.0.1'

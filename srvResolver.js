@@ -21,14 +21,16 @@ var dnsSocket = require('dns-socket')
 
 
 /**
- * dns based service resolution. performs resolution by first running an SRV query,
- * followed by an A query on the resultant cname records returned
+ * DNS-based service resolution. Performs resolution by first running an SRV query,
+ * optionally followed by an A query on the resultant cname records returned
  */
 module.exports = function (opts) {
   assert(opts)
   assert(opts.mode)
 
-  function lookupDirect (query, cb) {
+  var lookup = opts.mode === 'direct' ? lookupDirect : lookupSystem
+
+  function lookupDirect (query, srvOnly, cb) {
     var client = dnsSocket()
     var result = []
 
@@ -36,6 +38,14 @@ module.exports = function (opts) {
       if (err) { return cb(err) }
 
       if (serviceSRV.answers && serviceSRV.answers.length > 0) {
+        if (srvOnly) {
+          client.destroy()
+          return cb(null, serviceSRV.answers.map(function (answer) {
+            return {host: answer.data.target, port: answer.data.port}
+          }))
+        }
+
+        // Lookup IP address for A record
         asnc.eachSeries(serviceSRV.answers, function (answer, next) {
 
           client.query({questions: [{type: 'A', name: answer.data.target}]}, opts.port, opts.host, function (err, serviceA) {
@@ -66,12 +76,17 @@ module.exports = function (opts) {
 
 
 
-  function lookupSystem (query, cb) {
+  function lookupSystem (query, srvOnly, cb) {
     var result = []
 
     dns.resolveSrv(query, function (err, addressesSRV) {
       if (err) { return cb(err) }
       if (addressesSRV && addressesSRV.length > 0) {
+        if (srvOnly) {
+          return cb(null, addressesSRV.map(function (addressSRV) {
+            return {host: addressSRV.name, port: addressSRV.port}
+          }))
+        }
         asnc.eachSeries(addressesSRV, function (addressSRV, next) {
           dns.resolve4(addressSRV.name, function (err, addressesA) {
             if (err) { return next(err) }
@@ -98,19 +113,18 @@ module.exports = function (opts) {
   }
 
 
+  function resolveSrv (query, cb) {
+    lookup(query, true, cb)
+  }
 
   function resolve (query, cb) {
-    if (opts.mode === 'direct') {
-      lookupDirect(query, cb)
-    } else {
-      lookupSystem(query, cb)
-    }
+    lookup(query, false, cb)
   }
 
 
-
   return {
-    resolve: resolve
+    resolve: resolve,
+    resolveSrv: resolveSrv
   }
 }
 
