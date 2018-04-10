@@ -44,7 +44,7 @@ So a consumer of a service need only know the service and port name in order to 
 var redis = require('redis')
 var concordant = require('concordant')()
 
-// Change 'resolve' to 'srvResolve' to resolve the host and port without performing the A lookup to resolve IP addresses
+// Change 'resolve' to 'resolveSrv' to resolve the host and port without performing the A lookup to resolve IP addresses
 concordant.dns.resolve('_main._tcp.redis.mynamespace.svc.cluster.local', function (err, results) {
   if (err) { return cb(err) }
     var client = redis.createClient({host: results[0].host, port: results[0].port})    
@@ -70,7 +70,7 @@ Require the module and call `dns.resolve`. Callback contains an array of results
 
 ### Hostname resolution (SRV lookup only)
 
-Require the module and call `dns.srvResolve`. Callback contains an array of results or err. Results in the form:
+Require the module and call `dns.resolveSrv`. Callback contains an array of results or err. Results in the form:
 
 ```javascript
 [{host: 'service.namespace.svc.cluster.local', port: 1234},
@@ -82,7 +82,7 @@ Require the module and call `dns.srvResolve`. Callback contains an array of resu
 ```javascript
 var concordant = require('concordant')()
 
-concordant.dns.srvResolve('full.service.domain.name', function (err, results) {
+concordant.dns.resolveSrv('full.service.domain.name', function (err, results) {
   if (err) { return cb(err) }
 
     // connect to results[0].host results[0].port and do stuff...
